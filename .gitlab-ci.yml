@@ -9,7 +9,7 @@ stages:
 
 before_script:
     - apk update
-    - apk add make cmake clang binutils build-base git doxygen libx11-dev mesa
+    - apk add make cmake clang binutils build-base git doxygen libx11-dev mesa-dev
 
 build:
     stage: build

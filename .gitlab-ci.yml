@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2021 metaquarx <metaquarx@protonmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+image: alpine
+
+stages:
+    - build
+    - artifacts
+
+before_script:
+    - apk update
+    - apk add make cmake clang binutils build-base git doxygen libx11-dev
+
+build:
+    stage: build
+    script:
+        - cmake -S . -B build -DFORCEGRAPH_BUILD_DOCS=ON -DFORCEGRAPH_BUILD_EXAMPLES=ON
+        - cmake --build build
+    artifacts:
+        paths:
+            # - build/
+            - build/Makefile
+            - build/libForceGraph.a
+            - build/CMakeCache.txt
+            - build/docs/*
+        expire_in: 2 days
+
+examples:
+    stage: artifacts
+    needs: ['build']
+    script:
+        - cmake --build build -t Collatz
+    artifacts:
+        when: always
+        paths:
+            - build/examples/Collatz
+        expire_in: 2 days
+
+pages:
+    stage: artifacts
+    needs: ['build']
+    script:
+        - cmake --build build -t doxygen
+        - mv build/docs/html public
+    artifacts:
+        paths:
+            - public/
+        expire_in: 2 days
+    only:
+        - trunk

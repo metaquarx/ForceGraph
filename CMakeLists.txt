@@ -46,7 +46,7 @@ include(FetchContent)
 FetchContent_Declare(
 	Stitch
 	GIT_REPOSITORY "https://gitlab.com/metaquarx/stitch"
-	GIT_TAG "v0.3.1"
+	GIT_TAG "v0.4.1"
 )
 
 FetchContent_MakeAvailable(Stitch)

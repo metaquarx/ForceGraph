@@ -39,8 +39,8 @@ public:
 	/**
 	 * @brief      Set the graphics framerate of the window
 	 *
-	 * @param[in]  fps   The FPS value. If this is 0, the framerate is uncapped. If it is a negative value, vsync is
-	 * enabled (default).
+	 * @param[in]  fps   The FPS value. If this is 0, the framerate is uncapped. If it is a negative
+	 * value, vsync is enabled (default).
 	 */
 	void set_framerate(int fps);
 
@@ -56,8 +56,8 @@ public:
 	/**
 	 * @brief      Start the simulation.
 	 *
-	 * This can be interrupted either by the user closing the window, or by calling `pause()` from inside the event
-	 * callback (`on_event()`).
+	 * This can be interrupted either by the user closing the window, or by calling `pause()` from
+	 * inside the event callback (`on_event()`).
 	 */
 	void play();
 
@@ -87,8 +87,8 @@ public:
 	/**
 	 * @brief      Recalculate the connections between different nodes.
 	 *
-	 * This should be called after `append()`ing nodes, though it is not called automatically incase you choose to
-	 * append nodes through multiple append calls.
+	 * This should be called after `append()`ing nodes, though it is not called automatically incase
+	 * you choose to append nodes through multiple append calls.
 	 */
 	void recalculate_connections();
 

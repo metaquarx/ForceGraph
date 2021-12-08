@@ -6,7 +6,6 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(ForceGraph VERSION 1.0.0 LANGUAGES CXX)
 
-option(FORCEGRAPH_BUILD_EXAMPLES "Build ForceGraph examples" OFF)
 option(FORCEGRAPH_BUILD_DOCS "Build ForceGraph documentation" OFF)
 
 # Build types
@@ -69,9 +68,7 @@ target_link_libraries(ForceGraph PUBLIC sfml-graphics)
 
 # Docs
 
-if (FORCEGRAPH_BUILD_EXAMPLES)
-	add_subdirectory(examples)
-endif()
+add_subdirectory(examples)
 
 if (FORCEGRAPH_BUILD_DOCS)
 	add_subdirectory(docs)

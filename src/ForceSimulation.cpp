@@ -10,9 +10,9 @@
 
 namespace fg {
 
-ForceSimulation::ForceSimulation(const std::string &title) : paused(true), reng(rdev()), rdist(-500, 500) {
+ForceSimulation::ForceSimulation(const std::string &title)
+: paused(true), reng(rdev()), rdist(-500, 500) {
 	auto desktop = sf::VideoMode::getDesktopMode();
-
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 5;
 
@@ -92,25 +92,24 @@ void ForceSimulation::append(const std::vector<Node> &nodes) {
 }
 
 void ForceSimulation::recalculate_connections() {
-	for (auto entity : registry.view<cp::LinksLabel>()) {
-		auto &labels = registry.get<cp::LinksLabel>(entity);
-
+	registry.each<cp::LinksLabel>([this](auto entity, auto &labels) {
 		cp::LinksEntity temp;
-		for (auto target : registry.view<cp::Label>()) {
-			if (std::find(labels.begin(), labels.end(), registry.get<cp::Label>(target)) != labels.end()) {
+
+		registry.each<cp::Label>([&temp, &labels](auto id, auto &label) {
+			if (std::find(labels.begin(), labels.end(), label) != labels.end()) {
 				Arrow arrow;
 				arrow.set_colour({60, 60, 60});
 				arrow.thickness = 5.f;
-				temp.push_back({target, arrow});
+				temp.push_back({id, arrow});
 			}
-		}
+		});
 
 		if (!registry.all_of<cp::LinksEntity>(entity)) {
 			registry.emplace<cp::LinksEntity>(entity, std::move(temp));
 		} else {
 			registry.get<cp::LinksEntity>(entity) = std::move(temp);
 		}
-	}
+	});
 }
 
 void ForceSimulation::update() {
@@ -123,17 +122,15 @@ void ForceSimulation::display() {
 	window.clear({247, 247, 247});
 
 	// draw connectiosn
-	for (auto node : registry.view<cp::LinksEntity, cp::Position>()) {
-		auto &connections = registry.get<cp::LinksEntity>(node);
-		for (auto link : connections) {
+	registry.each<cp::LinksEntity, cp::Position>([this](auto, auto &connections, auto &) {
+		for (auto &link : connections) {
 			window.draw(link.connection);
 		}
-	}
+	});
 
 	// draw nodes
-	for (auto node : registry.view<sf::CircleShape, cp::Position>()) {
-		window.draw(registry.get<sf::CircleShape>(node));
-	}
+	registry.each<sf::CircleShape, cp::Position>(
+		[this](auto, auto &circle, auto &) { window.draw(circle); });
 
 	window.display();
 }

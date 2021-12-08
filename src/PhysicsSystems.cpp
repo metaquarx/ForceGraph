@@ -9,61 +9,56 @@ namespace fg::systems {
 
 void calculate_forces(stch::Scene &registry, float gravity_c, float force_c) {
 	// apply forces towards center
-	for (auto node : registry.view<cp::Force, cp::Position>()) {
-		auto gravity = registry.get<cp::Position>(node) * -1.f * gravity_c;
-		registry.get<cp::Force>(node).value = gravity;
-	}
+	registry.each<cp::Force, cp::Position>(
+		[&](auto, auto &force, auto &pos) { force.value = pos * -1.f * gravity_c; });
 
 	// apply repulsive forces between nodes
-	for (auto node_i : registry.view<cp::Force, cp::Position>()) {
-		for (auto node_j : registry.view<cp::Force, cp::Position>()) {
-			if (node_i >= node_j) {
-				continue;
+	registry.each<cp::Force, cp::Position>([&](auto lhs, auto &lhs_force, auto &lhs_pos) {
+		registry.each<cp::Force, cp::Position>([&](auto rhs, auto &rhs_force, auto &rhs_pos) {
+			if (lhs >= rhs) {
+				return;
 			}
 
-			auto &pos = registry.get<cp::Position>(node_i);
-			auto dir = registry.get<cp::Position>(node_j) - pos;
+			auto dir = rhs_pos - lhs_pos;
 			auto force = dir / (magnitude(dir) * magnitude(dir));
 			force *= force_c;
 
 			if (!std::isnan(force.x) && !std::isnan(force.y)) {
-				registry.get<cp::Force>(node_i).value += force * -1.f;
-				registry.get<cp::Force>(node_j).value += force;
+				lhs_force.value -= force;
+				rhs_force.value += force;
 			}
-		}
-	}
+		});
+	});
 
 	// apply forces according to connections
-	for (auto node : registry.view<cp::Force, cp::LinksEntity>()) {
-		for (auto &link : registry.get<cp::LinksEntity>(node)) {
+	registry.each<cp::Force, cp::LinksEntity, cp::Position>([&](auto, auto &force, auto &links, auto &pos) {
+		for (auto &link : links) {
 			if (registry.all_of<cp::Position, cp::Force>(link.entity)) {
-				auto distance = registry.get<cp::Position>(node) - registry.get<cp::Position>(link.entity);
+				const auto &[o_pos, o_force] = registry.get<cp::Position, cp::Force>(link.entity);
 
-				registry.get<cp::Force>(node).value -= distance;
-				registry.get<cp::Force>(link.entity).value += distance;
+				auto distance = pos - o_pos;
+
+				force.value -= distance;
+				o_force.value += distance;
 			}
 		}
-	}
+	});
 }
 
 void apply_forces(stch::Scene &registry) {
 	// update position using forces
-	for (auto node : registry.view<cp::Force, cp::Position, cp::Mass>()) {
-		auto &force = registry.get<cp::Force>(node).value;
-		auto &mass = registry.get<cp::Mass>(node);
+	registry.each<cp::Force, cp::Position, cp::Mass>([&](auto, auto &force, auto &pos, auto &mass) {
+		auto velocity = force.value / static_cast<float>(mass);
 
-		auto velocity = force / static_cast<float>(mass);
-
-		registry.get<cp::Position>(node) += velocity;
-	}
+		pos += velocity;
+	});
 }
 
 void apply_positions(stch::Scene &registry) {
 	// update positions of arrows
-	for (auto node : registry.view<cp::LinksEntity, cp::Position>()) {
-		auto self_pos = registry.get<cp::Position>(node);
-		for (auto &link : registry.get<cp::LinksEntity>(node)) {
-			link.connection.pos_1 = self_pos;
+	registry.each<cp::LinksEntity, cp::Position>([&](auto, auto &links, auto &position) {
+		for (auto &link : links) {
+			link.connection.pos_1 = position;
 
 			if (registry.all_of<cp::Position>(link.entity)) {
 				link.connection.pos_2 = registry.get<cp::Position>(link.entity);
@@ -71,12 +66,11 @@ void apply_positions(stch::Scene &registry) {
 
 			link.connection.recalculate_points();
 		}
-	}
+	});
 
 	// update postions of circles
-	for (auto node : registry.view<sf::CircleShape, cp::Position>()) {
-		registry.get<sf::CircleShape>(node).setPosition(registry.get<cp::Position>(node));
-	}
+	registry.each<sf::CircleShape, cp::Position>(
+		[&](auto, auto &circle, auto &position) { circle.setPosition(position); });
 }
 
 }  // namespace fg::systems

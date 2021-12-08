@@ -99,10 +99,14 @@ private:
 	stch::Scene registry;
 
 	sf::RenderWindow window;
+	sf::Clock clock;
+
 	sf::View center;
 	sf::View normal;
 
 	float tick_rate;
+	float accumulator;
+
 	bool paused;
 
 	std::random_device rdev;

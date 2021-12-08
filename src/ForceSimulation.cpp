@@ -11,7 +11,7 @@
 namespace fg {
 
 ForceSimulation::ForceSimulation(const std::string &title)
-: paused(true), reng(rdev()), rdist(-500, 500) {
+: accumulator(0), paused(true), reng(rdev()), rdist(-500, 500) {
 	auto desktop = sf::VideoMode::getDesktopMode();
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 5;
@@ -64,7 +64,12 @@ void ForceSimulation::play() {
 			}
 		}
 
-		update();
+		accumulator += clock.restart().asSeconds();
+
+		while (accumulator > tick_rate) {
+			update();
+			accumulator -= tick_rate;
+		}
 		display();
 	}
 }

@@ -49,9 +49,9 @@ public:
 	/**
 	 * @brief      Set the tick rate of the internal physics engine.
 	 *
-	 * @param[in]  interval  The interval between ticks. Defaults to 20 times a second.
+	 * @param[in]  interval  The interval between ticks. Defaults to 30 times a second.
 	 */
-	void set_tick_rate(float interval = 1.f / 20.f);
+	void set_tick_rate(float interval = 1.f / 30.f);
 
 	/**
 	 * @brief      Start the simulation.

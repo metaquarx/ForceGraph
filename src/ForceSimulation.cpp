@@ -5,9 +5,8 @@
 
 #include "Components.hpp"
 #include "GraphicsSystems.hpp"
+#include "Maths.hpp"
 #include "PhysicsSystems.hpp"
-
-#include <algorithm>
 
 namespace fg {
 
@@ -25,13 +24,13 @@ ForceSimulation::ForceSimulation(const std::string &title)
 	auto normal_camera = registry.emplace();
 	registry.emplace<sf::View>(normal_camera);
 	registry.emplace<cp::RenderType>(normal_camera, cp::RenderType::Normal);
-	registry.emplace<cp::DragInProgress>(normal_camera, false);
+	registry.emplace<cp::Draggable>(normal_camera);
 	registry.emplace<cp::Position>(normal_camera);
 
 	auto centered_camera = registry.emplace();
 	registry.emplace<sf::View>(centered_camera);
 	registry.emplace<cp::RenderType>(centered_camera, cp::RenderType::Centered);
-	registry.emplace<cp::DragInProgress>(centered_camera, false);
+	registry.emplace<cp::Draggable>(centered_camera);
 	registry.emplace<cp::Position>(centered_camera);
 }
 
@@ -77,19 +76,54 @@ void ForceSimulation::play() {
 				});
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Left) {
-					registry.each<cp::DragInProgress, cp::Position>([&](auto, auto &drag, auto &pos) {
-						pos = {};
-						drag = true;
+					bool found = false;
+					std::vector<stch::EntityID> other;
+
+					registry.each<cp::Draggable>([&](auto id, auto &drag) {
+						// handle nodes first, everything else afterwards
+						if (!registry.all_of<sf::CircleShape>(id)) {
+							other.push_back(id);
+							return;
+						}
+						auto &circle = registry.get<sf::CircleShape>(id);
+
+						// only 1 node should be draggable
+						if (found) {
+							return;
+						}
+
+						if (distance(circle.getPosition(),
+									 window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y})) >
+							circle.getRadius()) {
+							return;
+						}
+
+						drag.in_progress = true;
+						registry.emplace<cp::ForceDisable>(id);	 // stop physics system from taking
+																 // over
+						found = true;
 					});
+
+					if (!found) {
+						for (auto background : other) {
+							auto &drag = registry.get<cp::Draggable>(background);
+							drag.in_progress = true;
+						}
+					}
 				}
 			} else if (event.type == sf::Event::MouseButtonReleased) {
-				registry.each<cp::DragInProgress>([&](auto, auto &drag) { drag = false; });
+				registry.each<cp::Draggable>([&](auto id, auto &drag) {
+					drag.in_progress = false;
+					if (registry.all_of<cp::ForceDisable>(id)) {
+						registry.erase<cp::ForceDisable>(id);
+					}
+				});
 			} else if (event.type == sf::Event::MouseMoved) {
 				sf::Vector2i current(event.mouseMove.x, event.mouseMove.y);
-				registry.each<cp::DragInProgress, cp::Position>([&](auto, auto &drag, auto &pos) {
-					if (drag) {
+				registry.each<cp::Draggable, cp::Position>([&](auto, auto &drag, auto &pos) {
+					if (drag.in_progress) {
 						auto delta = last_mouse_position - current;
-						pos += sf::Vector2f(delta);
+						pos -= sf::Vector2f(delta);
 					}
 				});
 				last_mouse_position = current;
@@ -106,6 +140,7 @@ void ForceSimulation::play() {
 			accumulator -= tick_rate;
 		}
 
+		systems::apply_positions(registry);
 		systems::draw(registry, window);
 	}
 }
@@ -124,6 +159,7 @@ void ForceSimulation::append(const std::vector<Node> &nodes) {
 		registry.emplace<cp::Position>(node_entity, sf::Vector2f{rdist(reng), rdist(reng)});
 		registry.emplace<cp::LinksLabel>(node_entity, node.links);
 		registry.emplace<cp::RenderType>(node_entity, cp::RenderType::Centered);
+		registry.emplace<cp::Draggable>(node_entity);
 
 		auto &shape = registry.emplace<sf::CircleShape>(node_entity);
 		auto mass = static_cast<float>(node.mass);
@@ -157,7 +193,6 @@ void ForceSimulation::recalculate_connections() {
 void ForceSimulation::update() {
 	systems::calculate_forces(registry, 1.5f, 12000.f);
 	systems::apply_forces(registry);
-	systems::apply_positions(registry);
 }
 
 }  // namespace fg

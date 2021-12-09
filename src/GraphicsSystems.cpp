@@ -9,7 +9,7 @@ void draw(stch::Scene &registry, sf::RenderWindow &window) {
 	window.clear({247, 247, 247});
 
 	registry.each<sf::View, cp::RenderType, cp::Position>([&](auto, auto &view, auto &camera_type, auto &move) {
-		view.move(move);
+		view.move(-move);
 		move = {};
 		window.setView(view);
 
@@ -32,6 +32,13 @@ void draw(stch::Scene &registry, sf::RenderWindow &window) {
 
 			window.draw(circle);
 		});
+	});
+
+	// leave center applied by default
+	registry.each<sf::View, cp::RenderType>([&](auto, auto &view, auto &type) {
+		if (type == cp::RenderType::Centered) {
+			window.setView(view);
+		}
 	});
 
 	// show

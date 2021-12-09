@@ -35,6 +35,10 @@ struct ForceDisable {};
 // Graphics
 enum class RenderType { None, Normal, Centered };
 
-using DragInProgress = bool;
+struct Draggable {
+	Draggable() : in_progress(false) {
+	}
+	bool in_progress;
+};
 
 }  // namespace fg::cp

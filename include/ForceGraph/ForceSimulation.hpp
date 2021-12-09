@@ -94,7 +94,6 @@ public:
 
 private:
 	void update();
-	void display();
 
 	stch::Scene registry;
 

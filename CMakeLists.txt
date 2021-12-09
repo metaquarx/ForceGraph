@@ -26,6 +26,7 @@ set(SOURCE_FILES
 	"src/Maths.cpp"
 	"src/PhysicsSystems.cpp"
 	"src/Arrow.cpp"
+	"src/GraphicsSystems.cpp"
 )
 
 add_library(ForceGraph ${SOURCE_FILES})

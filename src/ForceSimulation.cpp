@@ -4,6 +4,7 @@
 #include "ForceGraph/ForceSimulation.hpp"
 
 #include "Components.hpp"
+#include "GraphicsSystems.hpp"
 #include "PhysicsSystems.hpp"
 
 #include <algorithm>
@@ -72,7 +73,8 @@ void ForceSimulation::play() {
 			update();
 			accumulator -= tick_rate;
 		}
-		display();
+
+		systems::draw(registry, window);
 	}
 }
 
@@ -123,23 +125,6 @@ void ForceSimulation::update() {
 	systems::calculate_forces(registry, 1.5f, 12000.f);
 	systems::apply_forces(registry);
 	systems::apply_positions(registry);
-}
-
-void ForceSimulation::display() {
-	window.clear({247, 247, 247});
-
-	// draw connectiosn
-	registry.each<cp::LinksEntity, cp::Position>([this](auto, auto &connections, auto &) {
-		for (auto &link : connections) {
-			window.draw(link.connection);
-		}
-	});
-
-	// draw nodes
-	registry.each<sf::CircleShape, cp::Position>(
-		[this](auto, auto &circle, auto &) { window.draw(circle); });
-
-	window.display();
 }
 
 }  // namespace fg

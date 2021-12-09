@@ -21,6 +21,14 @@ ForceSimulation::ForceSimulation(const std::string &title)
 
 	set_tick_rate();
 	set_framerate(-1);
+
+	auto normal_camera = registry.emplace();
+	registry.emplace<sf::View>(normal_camera);
+	registry.emplace<cp::RenderType>(normal_camera, cp::RenderType::Normal);
+
+	auto centered_camera = registry.emplace();
+	registry.emplace<sf::View>(centered_camera);
+	registry.emplace<cp::RenderType>(centered_camera, cp::RenderType::Centered);
 }
 
 void ForceSimulation::set_tick_rate(float interval) {
@@ -56,10 +64,13 @@ void ForceSimulation::play() {
 				float width = static_cast<float>(event.size.width);
 				float height = static_cast<float>(event.size.height);
 
-				normal.reset({0, 0, width, height});
-				center.reset({-width / 2, -height / 2, width, height});
-
-				window.setView(center);
+				registry.each<cp::RenderType, sf::View>([&](auto, auto &type, auto &view) {
+					if (type == cp::RenderType::Normal) {
+						view.reset({0, 0, width, height});
+					} else if (type == cp::RenderType::Centered) {
+						view.reset({-width / 2, -height / 2, width, height});
+					}
+				});
 			}
 
 			for (auto callback : on_event) {
@@ -91,6 +102,7 @@ void ForceSimulation::append(const std::vector<Node> &nodes) {
 		registry.emplace<cp::Force>(node_entity);
 		registry.emplace<cp::Position>(node_entity, sf::Vector2f{rdist(reng), rdist(reng)});
 		registry.emplace<cp::LinksLabel>(node_entity, node.links);
+		registry.emplace<cp::RenderType>(node_entity, cp::RenderType::Centered);
 
 		auto &shape = registry.emplace<sf::CircleShape>(node_entity);
 		auto mass = static_cast<float>(node.mass);

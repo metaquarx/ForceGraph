@@ -8,16 +8,29 @@ namespace fg::systems {
 void draw(stch::Scene &registry, sf::RenderWindow &window) {
 	window.clear({247, 247, 247});
 
-	// draw connections
-	registry.each<cp::LinksEntity, cp::Position>([&](auto, auto &connections, auto &) {
-		for (auto &link : connections) {
-			window.draw(link.connection);
-		}
-	});
+	registry.each<sf::View, cp::RenderType>([&](auto, auto &view, auto &camera_type) {
+		window.setView(view);
 
-	// draw nodes
-	registry.each<sf::CircleShape, cp::Position>(
-		[&](auto, auto &circle, auto &) { window.draw(circle); });
+		// draw connections
+		registry.each<cp::LinksEntity, cp::RenderType>([&](auto, auto &connections, auto &type) {
+			if (camera_type != type) {
+				return;
+			}
+
+			for (auto &link : connections) {
+				window.draw(link.connection);
+			}
+		});
+
+		// draw nodes
+		registry.each<sf::CircleShape, cp::RenderType>([&](auto, auto &circle, auto &type) {
+			if (camera_type != type) {
+				return;
+			}
+
+			window.draw(circle);
+		});
+	});
 
 	// show
 	window.display();

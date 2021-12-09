@@ -4,8 +4,8 @@
 #include "ForceGraph/ForceSimulation.hpp"
 
 #include "Components.hpp"
+#include "DraggingSystems.hpp"
 #include "GraphicsSystems.hpp"
-#include "Maths.hpp"
 #include "PhysicsSystems.hpp"
 
 namespace fg {
@@ -76,57 +76,12 @@ void ForceSimulation::play() {
 				});
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Left) {
-					bool found = false;
-					std::vector<stch::EntityID> other;
-
-					registry.each<cp::Draggable>([&](auto id, auto &drag) {
-						// handle nodes first, everything else afterwards
-						if (!registry.all_of<sf::CircleShape>(id)) {
-							other.push_back(id);
-							return;
-						}
-						auto &circle = registry.get<sf::CircleShape>(id);
-
-						// only 1 node should be draggable
-						if (found) {
-							return;
-						}
-
-						if (distance(circle.getPosition(),
-									 window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y})) >
-							circle.getRadius()) {
-							return;
-						}
-
-						drag.in_progress = true;
-						registry.emplace<cp::ForceDisable>(id);	 // stop physics system from taking
-																 // over
-						found = true;
-					});
-
-					if (!found) {
-						for (auto background : other) {
-							auto &drag = registry.get<cp::Draggable>(background);
-							drag.in_progress = true;
-						}
-					}
+					systems::drag_press(registry, {event.mouseButton.x, event.mouseButton.y}, window);
 				}
 			} else if (event.type == sf::Event::MouseButtonReleased) {
-				registry.each<cp::Draggable>([&](auto id, auto &drag) {
-					drag.in_progress = false;
-					if (registry.all_of<cp::ForceDisable>(id)) {
-						registry.erase<cp::ForceDisable>(id);
-					}
-				});
+				systems::drag_release(registry);
 			} else if (event.type == sf::Event::MouseMoved) {
-				sf::Vector2i current(event.mouseMove.x, event.mouseMove.y);
-				registry.each<cp::Draggable, cp::Position>([&](auto, auto &drag, auto &pos) {
-					if (drag.in_progress) {
-						auto delta = last_mouse_position - current;
-						pos -= sf::Vector2f(delta);
-					}
-				});
-				last_mouse_position = current;
+				systems::drag_move(registry, {event.mouseMove.x, event.mouseMove.y}, last_mouse_position);
 			}
 
 			for (auto callback : on_event) {

@@ -22,11 +22,12 @@ endif()
 
 set(SOURCE_FILES
 	"src/ForceSimulation.cpp"
+	"src/PhysicsSystems.cpp"
+	"src/GraphicsSystems.cpp"
+	"src/DraggingSystems.cpp"
 	"src/Node.cpp"
 	"src/Maths.cpp"
-	"src/PhysicsSystems.cpp"
 	"src/Arrow.cpp"
-	"src/GraphicsSystems.cpp"
 )
 
 add_library(ForceGraph ${SOURCE_FILES})

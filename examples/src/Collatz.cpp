@@ -33,14 +33,17 @@ int main() {
 	fg::ForceSimulation fs("Collatz Conjecture Simulation");
 
 	std::vector<unsigned> handled;	// Used to store numbers we have already added to the simulation
-	unsigned next_up = 4;  // Used to store the next number to add
+	unsigned next_up = 4;			// Used to store the next number to add
 
 	fs.on_event.push_back([&fs, &handled, &next_up](sf::Event event) {
-		// Whenever the user clicks, add the next number in the collatz sequence to the simulation
+		// Whenever the user right clicks, add the next number in the collatz sequence to the
+		// simulation
 		if (event.type == sf::Event::MouseButtonReleased) {
-			add(fs, handled, next_up);
-			fs.recalculate_connections();
-			next_up++;
+			if (event.mouseButton.button == sf::Mouse::Right) {
+				add(fs, handled, next_up);
+				fs.recalculate_connections();
+				next_up++;
+			}
 		}
 
 		// Whenever the user presses escape, end the simulation

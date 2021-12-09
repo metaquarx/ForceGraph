@@ -9,6 +9,6 @@ namespace fg::systems {
 
 void drag_press(stch::Scene &registry, sf::Vector2i current_pos, const sf::RenderTarget &window);
 void drag_release(stch::Scene &registry);
-void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos);
+void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos, float zoom);
 
 }  // namespace fg::systems

@@ -50,11 +50,11 @@ void drag_release(stch::Scene &registry) {
 	});
 }
 
-void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos) {
+void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos, float zoom) {
 	registry.each<cp::Draggable, cp::Position>([&](auto, auto &drag, auto &pos) {
 		if (drag.in_progress) {
 			auto delta = last_pos - current_pos;
-			pos -= sf::Vector2f(delta);
+			pos -= sf::Vector2f(delta) * zoom;
 		}
 	});
 	last_pos = current_pos;

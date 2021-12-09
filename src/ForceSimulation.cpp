@@ -11,7 +11,7 @@
 namespace fg {
 
 ForceSimulation::ForceSimulation(const std::string &title)
-: accumulator(0), paused(true), reng(rdev()), rdist(-500, 500) {
+: zoom(1), accumulator(0), paused(true), reng(rdev()), rdist(-500, 500) {
 	auto desktop = sf::VideoMode::getDesktopMode();
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 5;
@@ -74,20 +74,30 @@ void ForceSimulation::play() {
 						view.reset({-width / 2, -height / 2, width, height});
 					}
 				});
+
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Left) {
 					systems::drag_press(registry, {event.mouseButton.x, event.mouseButton.y}, window);
 				}
+
 			} else if (event.type == sf::Event::MouseButtonReleased) {
 				systems::drag_release(registry);
+
 			} else if (event.type == sf::Event::MouseMoved) {
-				systems::drag_move(registry, {event.mouseMove.x, event.mouseMove.y}, last_mouse_position);
+				systems::drag_move(registry, {event.mouseMove.x, event.mouseMove.y}, last_mouse_position, zoom);
+
+			} else if (event.type == sf::Event::MouseWheelScrolled) {
+				zoom -= event.mouseWheelScroll.delta * 0.1f;
+				if (zoom < 0.2f) {
+					zoom = 0.2f;
+				}
 			}
 
 			for (auto callback : on_event) {
 				callback(event);
 			}
 		}
+
 
 		accumulator += clock.restart().asSeconds();
 		while (accumulator > tick_rate) {
@@ -96,7 +106,7 @@ void ForceSimulation::play() {
 		}
 
 		systems::apply_positions(registry);
-		systems::draw(registry, window);
+		systems::draw(registry, window, zoom);
 	}
 }
 

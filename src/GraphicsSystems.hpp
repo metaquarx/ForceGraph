@@ -7,6 +7,6 @@
 
 namespace fg::systems {
 
-void draw(stch::Scene &registry, sf::RenderWindow &window);
+void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom);
 
 }  // namespace fg::systems

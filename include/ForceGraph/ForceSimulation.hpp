@@ -99,6 +99,7 @@ private:
 
 	sf::RenderWindow window;
 	sf::Clock clock;
+	float zoom;
 
 	sf::Vector2i last_mouse_position;
 

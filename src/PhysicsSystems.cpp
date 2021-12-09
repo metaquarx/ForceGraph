@@ -47,10 +47,12 @@ void calculate_forces(stch::Scene &registry, float gravity_c, float force_c) {
 
 void apply_forces(stch::Scene &registry) {
 	// update position using forces
-	registry.each<cp::Force, cp::Position, cp::Mass>([&](auto, auto &force, auto &pos, auto &mass) {
+	registry.each<cp::Force, cp::Position, cp::Mass>([&](auto id, auto &force, auto &pos, auto &mass) {
 		auto velocity = force.value / static_cast<float>(mass);
 
-		pos += velocity;
+		if (!registry.all_of<cp::ForceDisable>(id)) {
+			pos += velocity;
+		}
 	});
 }
 

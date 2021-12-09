@@ -30,6 +30,8 @@ struct Force {
 using Mass = unsigned;
 using Position = sf::Vector2f;
 
+struct ForceDisable {};
+
 // Graphics
 enum class RenderType { None, Normal, Centered };
 

@@ -19,3 +19,4 @@ macro(MakeFile SOURCE)
 endmacro()
 
 MakeFile("Collatz.cpp")
+MakeFile("Cloth.cpp")

@@ -33,4 +33,6 @@ using Position = sf::Vector2f;
 // Graphics
 enum class RenderType { None, Normal, Centered };
 
+using DragInProgress = bool;
+
 }  // namespace fg::cp

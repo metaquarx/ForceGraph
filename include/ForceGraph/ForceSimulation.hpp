@@ -100,6 +100,8 @@ private:
 	sf::RenderWindow window;
 	sf::Clock clock;
 
+	sf::Vector2i last_mouse_position;
+
 	float tick_rate;
 	float accumulator;
 

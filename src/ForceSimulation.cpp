@@ -25,10 +25,14 @@ ForceSimulation::ForceSimulation(const std::string &title)
 	auto normal_camera = registry.emplace();
 	registry.emplace<sf::View>(normal_camera);
 	registry.emplace<cp::RenderType>(normal_camera, cp::RenderType::Normal);
+	registry.emplace<cp::DragInProgress>(normal_camera, false);
+	registry.emplace<cp::Position>(normal_camera);
 
 	auto centered_camera = registry.emplace();
 	registry.emplace<sf::View>(centered_camera);
 	registry.emplace<cp::RenderType>(centered_camera, cp::RenderType::Centered);
+	registry.emplace<cp::DragInProgress>(centered_camera, false);
+	registry.emplace<cp::Position>(centered_camera);
 }
 
 void ForceSimulation::set_tick_rate(float interval) {
@@ -71,6 +75,24 @@ void ForceSimulation::play() {
 						view.reset({-width / 2, -height / 2, width, height});
 					}
 				});
+			} else if (event.type == sf::Event::MouseButtonPressed) {
+				if (event.mouseButton.button == sf::Mouse::Left) {
+					registry.each<cp::DragInProgress, cp::Position>([&](auto, auto &drag, auto &pos) {
+						pos = {};
+						drag = true;
+					});
+				}
+			} else if (event.type == sf::Event::MouseButtonReleased) {
+				registry.each<cp::DragInProgress>([&](auto, auto &drag) { drag = false; });
+			} else if (event.type == sf::Event::MouseMoved) {
+				sf::Vector2i current(event.mouseMove.x, event.mouseMove.y);
+				registry.each<cp::DragInProgress, cp::Position>([&](auto, auto &drag, auto &pos) {
+					if (drag) {
+						auto delta = last_mouse_position - current;
+						pos += sf::Vector2f(delta);
+					}
+				});
+				last_mouse_position = current;
 			}
 
 			for (auto callback : on_event) {
@@ -79,7 +101,6 @@ void ForceSimulation::play() {
 		}
 
 		accumulator += clock.restart().asSeconds();
-
 		while (accumulator > tick_rate) {
 			update();
 			accumulator -= tick_rate;

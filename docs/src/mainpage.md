@@ -12,8 +12,8 @@ ForceGraph is a [Force-Directed Graph](https://en.wikipedia.org/wiki/Force-direc
 ## Table of Contents
 
 - [Usage](#usage)
+- [Library reference](annotated.html)
 - [CMake integration](#cmake)
-- [Library references](annotated.html)
 - [Building manually](#building)
 
 ---
@@ -26,7 +26,9 @@ In most cases you'll only need to include the `ForceSimulation.hpp` header file.
 #include "ForceGraph/ForceSimulation.hpp"
 ```
 
-Take a look at the [Collatz](Collatz_8cpp-example.html) example to see the library in use, or take a look at the [documentation](annotated.html).
+Take a look at the ForceSimulation documentation [here](classfg_1_1ForceSimulation.html), or feel free to take a look at one of the examples:
+
+ - [Collatz](Collatz_8cpp-example.html) Visualising the collatz conjecture.
 
 ---
 
@@ -40,6 +42,7 @@ include(FetchContent)
 FetchContent_Declare(
 	ForceGraph
 	GIT_REPOSITORY "https://gitlab.com/metaquarx/forcegraph"
+	GIT_TAG "v1.0.0"
 )
 
 FetchContent_MakeAvailable(ForceGraph)
@@ -55,7 +58,7 @@ If that is not suitable for your project, you can call cmake manually and then c
 
 To build the project,
 ```
-cmake -S . -B build -DFORCEGRAPH_BUILD_DOCS=ON -DFORCEGRAPH_BUILD_EXAMPLES=ON
+cmake -S . -B build -DFORCEGRAPH_BUILD_DOCS=ON
 cmake --build build
 ```
 

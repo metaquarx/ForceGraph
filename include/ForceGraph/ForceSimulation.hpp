@@ -56,15 +56,16 @@ public:
 	/**
 	 * @brief      Start the simulation.
 	 *
-	 * This can be interrupted either by the user closing the window, or by calling `pause()` from
-	 * inside the event callback (`on_event()`).
+	 * This can be interrupted either by the user closing the window, or by calling @ref pause from
+	 * inside the event callback (@ref on_event).
 	 */
 	void play();
 
 	/**
 	 * @brief      Pause the simulation.
 	 *
-	 * This stops `play()` from blocking, and returns control back to the user.
+	 * This stops @ref play from blocking, and returns control back to the user. This can then be
+	 * resumed again using the same @ref play method.
 	 */
 	void pause();
 
@@ -72,6 +73,14 @@ public:
 
 	/**
 	 * @brief      Called when a window event is received.
+	 *
+	 * You can use this to listen for events and act accordingly. For example,
+	 * @code
+	 * fs.on_event.push_back([&](sf::Event event) {
+	 *     fs.append(node);
+	 *     fs.recalculate_connections();
+	 * });
+	 * @endcode
 	 */
 	std::vector<std::function<void(sf::Event)>> on_event;
 
@@ -80,6 +89,9 @@ public:
 	/**
 	 * @brief      Append nodes to the simulation.
 	 *
+	 * These nodes are appended alongside the ones that already exist in the simulation. After
+	 * calling this method, you should call @ref recalculate_connections.
+	 *
 	 * @param[in]  nodes  The nodes to append.
 	 */
 	void append(const std::vector<Node> &nodes = {});
@@ -87,8 +99,10 @@ public:
 	/**
 	 * @brief      Recalculate the connections between different nodes.
 	 *
-	 * This should be called after `append()`ing nodes, though it is not called automatically incase
-	 * you choose to append nodes through multiple append calls.
+	 * This makes sure the links between nodes are up to date.
+	 *
+	 * This should be called after you @ref append nodes. This is not called automatically, to allow
+	 * you to append multiple nodes sequentially, without increasing overhead.
 	 */
 	void recalculate_connections();
 
@@ -114,6 +128,14 @@ private:
 };
 
 /**
+ * @class fg::ForceSimulation
+ * @ingroup ForceSimulation
+ *
+ * This will be the main class you will be interacting with while using this library.
+ *
+ * It is responsible for storing all of your nodes, and simulating their movement and interactions
+ * with the user.
+ *
  * @example Collatz.cpp
  */
 

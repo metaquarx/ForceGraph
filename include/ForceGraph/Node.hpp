@@ -9,18 +9,19 @@
 namespace fg {
 
 /**
- * @brief      Class that represents a simple node to be added to the simulation.
+ * @brief      Class that represents a single node to be added to the simulation.
  */
 class Node {
 public:
 	/**
 	 * @brief      Constructor
 	 *
-	 * @param[in]  label  The label
-	 * @param[in]  links  The links
-	 * @param[in]  mass   The mass
+	 * @param[in]  label  Label of the current node
+	 * @param[in]  links  The labels of other nodes, that this node should connect to.
+	 * @param[in]  mass   The mass (determines size and movement)
 	 */
-	Node(const std::string &label = "Undefined", unsigned mass = 20, const std::vector<std::string> &links = {});
+	Node(const std::string &label = "Undefined", unsigned mass = 20,
+		 const std::vector<std::string> &links = {});
 
 	std::string label;
 	unsigned mass;

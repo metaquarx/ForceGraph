@@ -16,7 +16,7 @@ ForceSimulation::ForceSimulation(const std::string &title)
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = 5;
 
-	window.create(sf::VideoMode(desktop.width, desktop.height), title, sf::Style::Default, settings);
+	window.create(sf::VideoMode(desktop.width / 2, desktop.height / 2), title, sf::Style::Default, settings);
 
 	set_tick_rate();
 	set_framerate(-1);

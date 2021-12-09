@@ -14,7 +14,7 @@ before_script:
 build:
     stage: build
     script:
-        - cmake -S . -B build -DFORCEGRAPH_BUILD_DOCS=ON -DFORCEGRAPH_BUILD_EXAMPLES=ON
+        - cmake -S . -B build -DFORCEGRAPH_BUILD_DOCS=ON
         - cmake --build build
     artifacts:
         paths:
@@ -30,10 +30,12 @@ examples:
     needs: ['build']
     script:
         - cmake --build build -t Collatz
+        - cmake --build build -t Cloth
     artifacts:
         when: always
         paths:
             - build/examples/Collatz
+            - build/examples/Cloth
         expire_in: 2 days
 
 pages:

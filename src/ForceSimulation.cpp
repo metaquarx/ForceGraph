@@ -18,12 +18,6 @@ ForceSimulation::ForceSimulation(const std::string &title)
 
 	window.create(sf::VideoMode(desktop.width, desktop.height), title, sf::Style::Default, settings);
 
-	auto width = static_cast<float>(desktop.width);
-	auto height = static_cast<float>(desktop.height);
-	center.reset({-width / 2, -height / 2, width, height});
-	normal = window.getView();
-	window.setView(center);
-
 	set_tick_rate();
 	set_framerate(-1);
 }
@@ -57,6 +51,14 @@ void ForceSimulation::play() {
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				window.close();
+			} else if (event.type == sf::Event::Resized) {
+				float width = static_cast<float>(event.size.width);
+				float height = static_cast<float>(event.size.height);
+
+				normal.reset({0, 0, width, height});
+				center.reset({-width / 2, -height / 2, width, height});
+
+				window.setView(center);
 			}
 
 			for (auto callback : on_event) {

@@ -101,7 +101,7 @@ private:
 	sf::RenderWindow window;
 	sf::Clock clock;
 
-	sf::View center;
+	sf::View center;  // defaults to on
 	sf::View normal;
 
 	float tick_rate;

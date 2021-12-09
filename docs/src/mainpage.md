@@ -5,6 +5,8 @@ SPDX-License-Identifier: Apache-2.0 -->
 
 ForceGraph is a [Force-Directed Graph](https://en.wikipedia.org/wiki/Force-directed_graph_drawing). This is a graph where nodes are simulated as physical bodies, and forces are applied to attempt to minimise the number of crossing links.
 
+[![Collatz](example-collatz.gif)](#)
+
 ---
 
 ## Table of Contents

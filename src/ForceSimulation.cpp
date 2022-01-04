@@ -7,6 +7,7 @@
 #include "DraggingSystems.hpp"
 #include "GraphicsSystems.hpp"
 #include "PhysicsSystems.hpp"
+#include "SplineSans-Regular.hpp"
 
 namespace fg {
 
@@ -32,6 +33,10 @@ ForceSimulation::ForceSimulation(const std::string &title)
 	registry.emplace<cp::RenderType>(centered_camera, cp::RenderType::Centered);
 	registry.emplace<cp::Draggable>(centered_camera);
 	registry.emplace<cp::Position>(centered_camera);
+
+	if (!font.loadFromMemory(splinesans_regular.data(), splinesans_regular.size())) {
+		throw std::logic_error("Unable to load font");
+	}
 }
 
 void ForceSimulation::set_tick_rate(float interval) {
@@ -85,6 +90,7 @@ void ForceSimulation::play() {
 
 			} else if (event.type == sf::Event::MouseMoved) {
 				systems::drag_move(registry, {event.mouseMove.x, event.mouseMove.y}, last_mouse_position, zoom);
+				systems::hover(registry, window, {event.mouseMove.x, event.mouseMove.y});
 
 			} else if (event.type == sf::Event::MouseWheelScrolled) {
 				zoom -= event.mouseWheelScroll.delta * 0.1f;
@@ -106,7 +112,7 @@ void ForceSimulation::play() {
 		}
 
 		systems::apply_positions(registry);
-		systems::draw(registry, window, zoom);
+		systems::draw(registry, window, zoom, font);
 	}
 }
 

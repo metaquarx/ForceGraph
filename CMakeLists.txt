@@ -28,6 +28,7 @@ set(SOURCE_FILES
 	"src/Node.cpp"
 	"src/Maths.cpp"
 	"src/Arrow.cpp"
+	"src/SplineSans-Regular.cpp"
 )
 
 add_library(ForceGraph ${SOURCE_FILES})

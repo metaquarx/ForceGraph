@@ -41,4 +41,6 @@ struct Draggable {
 	bool in_progress;
 };
 
+struct Hovering {};
+
 }  // namespace fg::cp

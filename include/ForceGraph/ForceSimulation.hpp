@@ -112,6 +112,7 @@ private:
 	stch::Scene registry;
 
 	sf::RenderWindow window;
+	sf::Font font;
 	sf::Clock clock;
 	float zoom;
 

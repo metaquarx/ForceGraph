@@ -3,9 +3,11 @@
 
 #include "GraphicsSystems.hpp"
 
+#include <iostream>
+
 namespace fg::systems {
 
-void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom) {
+void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Font &font) {
 	window.clear({247, 247, 247});
 
 	registry.each<sf::View, cp::RenderType, cp::Position>([&](auto, auto &view, auto &camera_type, auto &move) {
@@ -29,12 +31,24 @@ void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom) {
 		});
 
 		// draw nodes
-		registry.each<sf::CircleShape, cp::RenderType>([&](auto, auto &circle, auto &type) {
+		registry.each<sf::CircleShape, cp::RenderType>([&](auto id, auto &circle, auto &type) {
 			if (camera_type != type) {
 				return;
 			}
 
 			window.draw(circle);
+
+			if (registry.all_of<cp::Hovering, cp::Label>(id)) {
+				sf::Text label(registry.get<cp::Label>(id), font);
+				label.setCharacterSize(30);
+				label.setStyle(sf::Text::Regular);
+				sf::Vector2 pos = circle.getPosition();
+				pos += {-label.getLocalBounds().width / 2, circle.getRadius() + 10};
+				label.setPosition(pos);
+				label.setFillColor({34, 34, 34});
+
+				window.draw(label);
+			}
 		});
 	});
 

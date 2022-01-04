@@ -7,6 +7,16 @@
 
 namespace fg::systems {
 
+void hover(stch::Scene &registry, sf::RenderTarget &window, sf::Vector2i pos) {
+	registry.each<cp::Hovering>([&](auto id, auto) { registry.erase<cp::Hovering>(id); });
+
+	registry.each<sf::CircleShape>([&](auto id, auto &c) {
+		if (distance(c.getPosition(), window.mapPixelToCoords(pos)) <= c.getRadius()) {
+			registry.emplace<cp::Hovering>(id);
+		}
+	});
+}
+
 void drag_press(stch::Scene &registry, sf::Vector2i current_pos, const sf::RenderTarget &window) {
 	bool found = false;
 	std::vector<stch::EntityID> other;
@@ -51,9 +61,9 @@ void drag_release(stch::Scene &registry) {
 }
 
 void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos, float zoom) {
+	auto delta = last_pos - current_pos;
 	registry.each<cp::Draggable, cp::Position>([&](auto, auto &drag, auto &pos) {
 		if (drag.in_progress) {
-			auto delta = last_pos - current_pos;
 			pos -= sf::Vector2f(delta) * zoom;
 		}
 	});

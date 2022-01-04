@@ -7,6 +7,7 @@
 
 namespace fg::systems {
 
+void hover(stch::Scene &registry, sf::RenderTarget &window, sf::Vector2i pos);
 void drag_press(stch::Scene &registry, sf::Vector2i current_pos, const sf::RenderTarget &window);
 void drag_release(stch::Scene &registry);
 void drag_move(stch::Scene &registry, sf::Vector2i current_pos, sf::Vector2i &last_pos, float zoom);

@@ -79,7 +79,6 @@ void ForceSimulation::play() {
 						view.reset({-width / 2, -height / 2, width, height});
 					}
 				});
-
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Left) {
 					systems::drag_press(registry, {event.mouseButton.x, event.mouseButton.y}, window);
@@ -96,6 +95,10 @@ void ForceSimulation::play() {
 				zoom -= event.mouseWheelScroll.delta * 0.1f;
 				if (zoom < 0.2f) {
 					zoom = 0.2f;
+				} else {
+					sf::Vector2i pos{event.mouseWheelScroll.x, event.mouseWheelScroll.y};
+					zoom_offset = sf::Vector2f(window.getSize()) / 2.f - sf::Vector2f(pos);
+					zoom_offset *= 0.1f;
 				}
 			}
 
@@ -112,7 +115,7 @@ void ForceSimulation::play() {
 		}
 
 		systems::apply_positions(registry);
-		systems::draw(registry, window, zoom, font);
+		systems::draw(registry, window, zoom, zoom_offset, font);
 	}
 }
 

@@ -8,14 +8,18 @@
 
 namespace fg::systems {
 
-void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Font &font) {
+void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Vector2f &zoom_offset, sf::Font &font) {
 	window.clear({247, 247, 247});
 
 	std::optional<stch::EntityID> hovering = std::nullopt;
 
 	registry.each<sf::View, cp::RenderType, cp::Position>([&](auto, auto &view, auto &camera_type, auto &move) {
+		// apply move to view
 		view.move(-move);
+		view.move(-zoom_offset);
 		move = {};
+
+		// work on copy to not zoom on stored view
 		sf::View copy(view);
 		copy.zoom(zoom);
 		window.setView(copy);
@@ -39,6 +43,7 @@ void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Font 
 				}
 			});
 	});
+	zoom_offset = {};
 
 	// leave center applied by default
 	registry.each<sf::View, cp::RenderType>([&](auto, auto &view, auto &type) {

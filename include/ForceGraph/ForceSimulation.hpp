@@ -115,6 +115,7 @@ private:
 	sf::Font font;
 	sf::Clock clock;
 	float zoom;
+	sf::Vector2f zoom_offset;
 
 	sf::Vector2i last_mouse_position;
 

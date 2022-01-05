@@ -4,52 +4,40 @@
 #include "GraphicsSystems.hpp"
 
 #include <iostream>
+#include <optional>
 
 namespace fg::systems {
 
 void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Font &font) {
 	window.clear({247, 247, 247});
 
+	std::optional<stch::EntityID> hovering = std::nullopt;
+
 	registry.each<sf::View, cp::RenderType, cp::Position>([&](auto, auto &view, auto &camera_type, auto &move) {
 		view.move(-move);
 		move = {};
-
 		sf::View copy(view);
 		copy.zoom(zoom);
-
 		window.setView(copy);
 
-		// draw connections
-		registry.each<cp::LinksEntity, cp::RenderType>([&](auto, auto &connections, auto &type) {
-			if (camera_type != type) {
-				return;
-			}
+		registry.each<sf::CircleShape, cp::LinksEntity, cp::RenderType>(
+			[&](auto id, auto &circle, auto &connections, auto &type) {
+				if (camera_type != type) {
+					return;
+				}
 
-			for (auto &link : connections) {
-				window.draw(link.connection);
-			}
-		});
+				// draw connections
+				for (auto &link : connections) {
+					window.draw(link.connection);
+				}
 
-		// draw nodes
-		registry.each<sf::CircleShape, cp::RenderType>([&](auto id, auto &circle, auto &type) {
-			if (camera_type != type) {
-				return;
-			}
+				// draw circles
+				window.draw(circle);
 
-			window.draw(circle);
-
-			if (registry.all_of<cp::Hovering, cp::Label>(id)) {
-				sf::Text label(registry.get<cp::Label>(id), font);
-				label.setCharacterSize(30);
-				label.setStyle(sf::Text::Regular);
-				sf::Vector2 pos = circle.getPosition();
-				pos += {-label.getLocalBounds().width / 2, circle.getRadius() + 10};
-				label.setPosition(pos);
-				label.setFillColor({34, 34, 34});
-
-				window.draw(label);
-			}
-		});
+				if (registry.all_of<cp::Hovering, cp::Label>(id)) {
+					hovering = id;
+				}
+			});
 	});
 
 	// leave center applied by default
@@ -60,6 +48,40 @@ void draw(stch::Scene &registry, sf::RenderWindow &window, float zoom, sf::Font 
 			window.setView(copy);
 		}
 	});
+
+	if (hovering) {
+		// phase out overlay
+		sf::RectangleShape overlay(zoom * 10 * sf::Vector2f(window.getSize()));
+		overlay.setPosition(overlay.getSize() / -2.f);
+		overlay.setFillColor({255, 255, 255, 50});
+		window.draw(overlay);
+
+		// circle
+		auto circle = registry.get<sf::CircleShape>(*hovering);
+		circle.setOutlineColor(circle.getFillColor());
+		circle.setOutlineThickness(3);
+		circle.setRadius(circle.getRadius() - 1.f);
+		circle.setFillColor({158, 0, 58});
+		window.draw(circle);
+
+		// links
+		for (auto link : registry.get<cp::LinksEntity>(*hovering)) {
+			link.connection.set_colour({158, 0, 58});
+			link.connection.recalculate_points();
+			window.draw(link.connection);
+		}
+
+		// label
+		sf::Text label(registry.get<cp::Label>(*hovering), font);
+		label.setCharacterSize(30);
+		label.setStyle(sf::Text::Regular);
+		sf::Vector2f pos = circle.getPosition();
+		pos += {-label.getLocalBounds().width / 2, circle.getRadius() + 10};
+		label.setPosition(sf::Vector2f(sf::Vector2i(pos)));
+		label.setFillColor({34, 34, 34});
+
+		window.draw(label);
+	}
 
 	// show
 	window.display();

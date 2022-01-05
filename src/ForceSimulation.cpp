@@ -147,8 +147,8 @@ void ForceSimulation::recalculate_connections() {
 		registry.each<cp::Label>([&temp, &labels](auto id, auto &label) {
 			if (std::find(labels.begin(), labels.end(), label) != labels.end()) {
 				Arrow arrow;
-				arrow.set_colour({60, 60, 60});
-				arrow.thickness = 5.f;
+				arrow.set_colour({54, 54, 54});
+				arrow.thickness = 3.f;
 				temp.push_back({id, arrow});
 			}
 		});
